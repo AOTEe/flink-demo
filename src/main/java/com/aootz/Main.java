@@ -16,7 +16,7 @@ public class Main {
 
         DataSet<Tuple2<String, Integer>> counts = text.flatMap(new LineSplitter()).groupBy(0).sum(1);
 
-        counts.printToErr();
+        counts.print();
     }
 
 
