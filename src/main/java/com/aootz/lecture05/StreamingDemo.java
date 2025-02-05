@@ -1,4 +1,4 @@
-package com.aootz;
+package com.aootz.lecture05;
 
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeHint;
@@ -22,6 +22,7 @@ public class StreamingDemo {
      */
     public static void main(String[] args) throws Exception {
 
+        // useBlinkPlanner() 适用于 Flink 1.11 及更早版本，Flink 1.12 之后 Blink 规划器已经成为默认的 Table API 规划器，并移除了 useBlinkPlanner() 方法。
         EnvironmentSettings bsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment bsEnvironment = StreamExecutionEnvironment.getExecutionEnvironment();
         StreamTableEnvironment bsTableEnvironment = StreamTableEnvironment.create(bsEnvironment, bsSettings);
@@ -32,7 +33,7 @@ public class StreamingDemo {
             }
         });
 
-
+        // 0.9版本中使用split方法（现已被弃用）
         DataStream<MyStreamingSource.Item> even = source.process(new ProcessFunction<MyStreamingSource.Item, MyStreamingSource.Item>() {
 
             @Override
@@ -42,6 +43,7 @@ public class StreamingDemo {
                 }
             }
         });
+        //even偶数
         even.print("even");
 
 
@@ -54,11 +56,12 @@ public class StreamingDemo {
                 }
             }
         });
-        even.print("odd");
+        //odd奇数
+        odd.print("odd");
 
-        bsTableEnvironment.createTemporaryView("evenTable", even, "name,id");
+        bsTableEnvironment.createTemporaryView("evenTable", even, "id,name");
 
-        bsTableEnvironment.createTemporaryView("oddTable", odd, "name,id");
+        bsTableEnvironment.createTemporaryView("oddTable", odd, "id,name");
 
         Table table = bsTableEnvironment.sqlQuery("select a.id,a.name,b.id,b.name from evenTable as a join oddTable as b " +
                 "on a.name = b.name");
@@ -68,8 +71,10 @@ public class StreamingDemo {
         bsTableEnvironment.toRetractStream(table, TypeInformation.of(new TypeHint<Tuple4<Integer, String, Integer, String>>() {
         })).print();
 
-        bsTableEnvironment.execute("streaming sql job");
 
+        //bsTableEnvironment.execute("streaming sql job");
+        bsEnvironment.execute();
+        //bsTableEnvironment.execute("streaming sql job");
         //旧版本写法
 
 //        DataStream<MyStreamingSource.Item> odd = source.split(new OutputSelector<MyStreamingSource.Item>() {

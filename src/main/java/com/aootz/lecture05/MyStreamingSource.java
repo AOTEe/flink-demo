@@ -1,4 +1,4 @@
-package com.aootz;
+package com.aootz.lecture05;
 
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -63,7 +63,7 @@ public class MyStreamingSource implements SourceFunction<MyStreamingSource.Item>
         int i = new Random().nextInt(100);
         Item item = new Item();
         item.setId(i);
-        item.setName("name" + i);
+        item.setName("name" + new Random().nextInt(100));
         return item;
     }
 
